@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple HTML Previewer</title>
+  <style>
+    :root {
+      --bg-dark: #1e1f25;
+      --bg-panel: #282a32;
+      --text-main: #f0f1f5;
+      --text-muted: #9498ab;
+      --border-color: #4a4e5c;
+      --accent: #5b8fcc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    /* ツールバー */
+    .toolbar {
+      background-color: var(--bg-panel);
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .toolbar-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-right: auto;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .toolbar-separator {
+      width: 1px;
+      height: 24px;
+      background: var(--border-color);
+      margin: 0 4px;
+    }
+
+    .toolbar-button {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-main);
+      padding: 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .toolbar-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-color);
+    }
+
+    .toolbar-button.active {
+      background-color: rgba(91, 143, 204, 0.15);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .toolbar-button svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    /* メインビュー */
+    .split-view {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .editor-container {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    /* ガター（分割バー） */
+    .gutter {
+      width: 8px;
+      background-color: var(--bg-dark);
+      cursor: col-resize;
+      position: relative;
+      z-index: 10;
+      transition: background-color 0.2s;
+    }
+
+    .gutter:hover, .gutter.dragging {
+      background-color: var(--accent);
+    }
+
+    .gutter::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 20px;
+      background-color: var(--text-muted);
+      border-radius: 2px;
+    }
+
+    .preview-container {
+      flex: 1;
+      background-color: #ffffff;
+      display: flex;
+      min-width: 0;
+    }
+
+    /* プレビューのみレイアウトの時のスタイル */
+    .split-view.layout-preview-only .editor-container,
+    .split-view.layout-preview-only .gutter {
+      display: none;
+    }
+
+    .panel-header {
+      background: var(--bg-dark);
+      color: var(--text-muted);
+      padding: 6px 16px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    textarea#html-editor {
+      flex: 1;
+      width: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      border: none;
+      padding: 16px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+    }
+
+    iframe#preview-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background-color: #ffffff;
+    }
+
+    /* ドラッグ中はiframeがマウスイベントを奪わないようにする */
+    body.is-dragging iframe {
+      pointer-events: none;
+    }
+
+    /* トースト通知 */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--accent);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <span class="toolbar-title">Simple HTML Previewer</span>
+    
+    <!-- 操作ボタン -->
+    <div class="btn-group">
+      <button class="toolbar-button" id="copy-btn" title="コードをコピー">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      </button>
+      <button class="toolbar-button" id="paste-btn" title="クリップボードから貼り付け">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+      </button>
+      <button class="toolbar-button" id="clear-btn" title="エディターをクリア">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    </div>
+
+    <!-- 出力ボタン (新規追加) -->
+    <div class="btn-group">
+      <button class="toolbar-button" id="download-btn" title="HTMLファイルをダウンロード">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      </button>
+      <button class="toolbar-button" id="pdf-btn" title="プレビューをPDFとして出力 (印刷)">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+      </button>
+    </div>
+
+    <div class="toolbar-separator"></div>
+
+    <!-- レイアウト切り替えボタン -->
+    <div class="btn-group">
+      <button class="toolbar-button active" id="layout-split-btn" title="左右分割">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"></path></svg>
+      </button>
+      <button class="toolbar-button" id="layout-preview-btn" title="プレビューのみ">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="split-view" id="split-view">
+    <div class="editor-container" id="editor-container">
+      <div class="panel-header">HTML Editor</div>
+      <textarea id="html-editor" placeholder="ここにHTMLコードを入力してください..."></textarea>
+    </div>
+    <div class="gutter" id="gutter"></div>
+    <div class="preview-container" id="preview-container">
+      <iframe id="preview-frame" title="HTML Preview"></iframe>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">通知メッセージ</div>
+
+  <script>
+    const editor = document.getElementById('html-editor');
+    const previewFrame = document.getElementById('preview-frame');
+    const toast = document.getElementById('toast');
+    let toastTimeout;
+
+    // --- プレビューの更新処理 ---
+    function updatePreview() {
+      const htmlCode = editor.value;
+      const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+      
+      doc.open();
+      doc.write(htmlCode);
+      doc.close();
+
+      try {
+        localStorage.setItem('simplePreviewCode', htmlCode);
+      } catch(e) {}
+    }
+
+    // --- トースト通知 ---
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    editor.addEventListener('input', updatePreview);
+
+    // --- コピー・ペースト・クリア ---
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+      const text = editor.value;
+      if (!text) return showToast('コピーする内容がありません');
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('コピーしました');
+      } catch (err) {
+        editor.select();
+        document.execCommand('copy');
+        showToast('コピーしました');
+      }
+    });
+
+    document.getElementById('paste-btn').addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.setRangeText(text, start, end, 'end');
+        updatePreview();
+        showToast('貼り付けました');
+      } catch (err) {
+        showToast('クリップボードへのアクセスが許可されていません');
+      }
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      if (!editor.value) return;
+      if (confirm('エディターの内容をクリアしますか？')) {
+        editor.value = '';
+        updatePreview();
+        showToast('クリアしました');
+      }
+    });
+
+    // --- HTMLダウンロード・PDF出力 (追加機能) ---
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const htmlText = editor.value;
+      if (!htmlText) return showToast('ダウンロードする内容がありません');
+
+      // titleタグからファイル名を推測
+      let filename = 'preview_output.html';
+      const match = htmlText.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      if (match && match[1]) {
+        let title = match[1].trim().replace(/[^a-z0-9_\-\s\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\uFF00-\uFFEF\u4E00-\u9FAF]+/gi, '_').replace(/\s+/g, '_');
+        if (title) filename = title + '.html';
+      }
+
+      const blob = new Blob([htmlText], { type: 'text/html;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      showToast('HTMLファイルをダウンロードしました');
+    });
+
+    document.getElementById('pdf-btn').addEventListener('click', () => {
+      try {
+        // iframeの中身だけを対象に印刷ダイアログを呼び出す
+        previewFrame.contentWindow.focus();
+        previewFrame.contentWindow.print();
+        showToast('「PDFとして保存」を選択してください');
+      } catch (e) {
+        showToast('PDF出力の呼び出しに失敗しました');
+        console.error(e);
+      }
+    });
+
+    // --- レイアウト切り替え ---
+    const layoutSplitBtn = document.getElementById('layout-split-btn');
+    const layoutPreviewBtn = document.getElementById('layout-preview-btn');
+    const splitView = document.getElementById('split-view');
+
+    layoutSplitBtn.addEventListener('click', () => {
+      splitView.classList.remove('layout-preview-only');
+      layoutSplitBtn.classList.add('active');
+      layoutPreviewBtn.classList.remove('active');
+    });
+
+    layoutPreviewBtn.addEventListener('click', () => {
+      splitView.classList.add('layout-preview-only');
+      layoutPreviewBtn.classList.add('active');
+      layoutSplitBtn.classList.remove('active');
+    });
+
+    // --- 中央ガターのドラッグリサイズ ---
+    const gutter = document.getElementById('gutter');
+    const editorContainer = document.getElementById('editor-container');
+    let isDragging = false;
+
+    gutter.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      document.body.classList.add('is-dragging');
+      gutter.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const containerRect = splitView.getBoundingClientRect();
+      // マウスのX座標からコンテナの左端を引いて新しい幅を計算
+      let newWidth = e.clientX - containerRect.left;
+      
+      // 極端に狭くなったり広くなったりしないように制限 (10% 〜 90%)
+      const minWidth = containerRect.width * 0.1;
+      const maxWidth = containerRect.width * 0.9;
+      
+      if (newWidth < minWidth) newWidth = minWidth;
+      if (newWidth > maxWidth) newWidth = maxWidth;
+      
+      editorContainer.style.width = `${newWidth}px`;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        document.body.classList.remove('is-dragging');
+        gutter.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    });
+
+    // --- 初期化 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedCode = localStorage.getItem('simplePreviewCode');
+      if (savedCode !== null) {
+        editor.value = savedCode;
+      } else {
+        editor.value = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Hello Previewer</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; color: #333; }
+    h1 { color: #5b8fcc; border-bottom: 2px solid #5b8fcc; padding-bottom: 0.5rem; }
+    p { line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>Hello Previewer!</h1>
+  <p>左側のエディタにHTMLを入力すると、右側にリアルタイムでプレビューが表示されます。</p>
+  <p>上部に追加されたボタンから、<b>HTMLのダウンロード</b>と<b>PDF出力</b>が可能です。</p>
+</body>
+</html>`;
+      }
+      updatePreview();
+    });
+  </script>
+</body>
+</html>

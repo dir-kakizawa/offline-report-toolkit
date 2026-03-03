@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple HTML Previewer | 開発環境不要のリアルタイムプレビュー</title>
+
+    <!-- フォント読み込み（Noto Sans JP / 等幅フォント） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* 
+      デジタル庁デザインシステム準拠のデザインデザイントークン 
+      参考: https://design.digital.go.jp/
+    */
+      :root {
+        --color-primary: #005ab5;
+        --color-primary-hover: #004b9b;
+        --color-text-main: #1a1a1c;
+        --color-text-sub: #595c64;
+        --color-bg-base: #ffffff;
+        --color-bg-surface: #f2f4f6;
+        --color-border: #d1d6db;
+        --color-focus: #ffcc00;
+
+        /* エンジニア向けアクセントカラー */
+        --color-code-bg: #1e1f25;
+        --color-code-text: #f0f1f5;
+
+        --font-family-base:
+          "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        --font-family-code:
+          "Fira Code", Consolas, Monaco, "Courier New", Courier, monospace;
+
+        --spacing-xs: 8px;
+        --spacing-sm: 16px;
+        --spacing-md: 24px;
+        --spacing-lg: 32px;
+        --spacing-xl: 48px;
+        --spacing-xxl: 64px;
+
+        --radius-sm: 4px;
+        --radius-md: 8px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-family-base);
+        color: var(--color-text-main);
+        background-color: var(--color-bg-base);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* アクセシビリティ：フォーカスリング */
+      *:focus-visible {
+        outline: 3px solid var(--color-focus);
+        outline-offset: 2px;
+      }
+
+      /* Container */
+      .container {
+        max-width: 1024px;
+        margin: 0 auto;
+        padding: 0 var(--spacing-md);
+      }
+
+      /* Header */
+      .header {
+        border-bottom: 1px solid var(--color-border);
+        padding: var(--spacing-sm) 0;
+      }
+      .header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .brand {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--color-text-main);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+      .brand svg {
+        fill: var(--color-primary);
+      }
+
+      .nav-links a {
+        color: var(--color-text-sub);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--color-primary);
+      }
+
+      /* Hero Section */
+      .hero {
+        padding: var(--spacing-xxl) 0;
+        background-color: var(--color-bg-surface);
+        border-bottom: 1px solid var(--color-border);
+      }
+      .hero-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xl);
+        align-items: center;
+      }
+      .hero-text h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: var(--spacing-md);
+        letter-spacing: -0.02em;
+      }
+      .hero-text p {
+        font-size: 1.125rem;
+        color: var(--color-text-sub);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid transparent;
+        gap: var(--spacing-xs);
+      }
+      .btn-primary {
+        background-color: var(--color-primary);
+        color: #ffffff;
+      }
+      .btn-primary:hover {
+        background-color: var(--color-primary-hover);
+      }
+      .btn-outline {
+        background-color: transparent;
+        color: var(--color-text-main);
+        border-color: var(--color-border);
+      }
+      .btn-outline:hover {
+        background-color: var(--color-border);
+      }
+
+      /* Code Window Graphic (Engineer Vibe) */
+      .code-window {
+        background-color: var(--color-code-bg);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border: 1px solid #333;
+      }
+      .code-header {
+        background-color: #2a2d37;
+        padding: 8px var(--spacing-sm);
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .dot.red {
+        background-color: #ff5f56;
+      }
+      .dot.yellow {
+        background-color: #ffbd2e;
+      }
+      .dot.green {
+        background-color: #27c93f;
+      }
+      .code-body {
+        padding: var(--spacing-md);
+        color: var(--color-code-text);
+        font-family: var(--font-family-code);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        overflow-x: auto;
+      }
+      .token.keyword {
+        color: #c678dd;
+      }
+      .token.tag {
+        color: #e06c75;
+      }
+      .token.attr {
+        color: #d19a66;
+      }
+      .token.string {
+        color: #98c379;
+      }
+
+      /* Features Section */
+      .features {
+        padding: var(--spacing-xxl) 0;
+      }
+      .section-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+      }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--spacing-lg);
+      }
+      .feature-card {
+        padding: var(--spacing-md);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background-color: var(--color-bg-base);
+      }
+      .feature-icon {
+        margin-bottom: var(--spacing-sm);
+        color: var(--color-primary);
+      }
+      .feature-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: var(--spacing-xs);
+      }
+      .feature-desc {
+        color: var(--color-text-sub);
+        font-size: 0.95rem;
+      }
+
+      /* Footer */
+      .footer {
+        border-top: 1px solid var(--color-border);
+        padding: var(--spacing-md) 0;
+        text-align: center;
+        color: var(--color-text-sub);
+        font-size: 0.875rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-content {
+          grid-template-columns: 1fr;
+        }
+        .hero-text h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <a href="#" class="brand">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+          </svg>
+          HTML Previewer
+        </a>
+        <nav class="nav-links">
+          <a
+            href="https://github.com/dir-kakizawa/offline-report-toolkit"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="container hero-content">
+          <div class="hero-text">
+            <h1>ブラウザで完結する<br />軽量HTMLエディタ</h1>
+            <p>
+              環境構築は一切不要。思いついたアイデアをすぐにコード化し、リアルタイムでプレビューを確認。作成したコードはHTMLやPDFとしてその場でエクスポート可能です。
+            </p>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap">
+              <!-- ★遷移先のリンク設定 -->
+              <!-- 添付のHTMLファイル名を「previewer.html」として保存した場合のリンク -->
+              <a href="previewer.html" class="btn btn-primary">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+                プレビューアーを起動
+              </a>
+              <a href="#features" class="btn btn-outline">特徴を見る</a>
+            </div>
+          </div>
+
+          <!-- Engineer Vibe Graphic -->
+          <div class="code-window">
+            <div class="code-header">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <div class="code-body">
+              <pre><code><span class="token tag">&lt;!DOCTYPE html&gt;</span>
+<span class="token tag">&lt;html <span class="token attr">lang</span>=<span class="token string">"ja"</span>&gt;</span>
+<span class="token tag">&lt;head&gt;</span>
+  <span class="token tag">&lt;title&gt;</span>Hello World<span class="token tag">&lt;/title&gt;</span>
+<span class="token tag">&lt;/head&gt;</span>
+<span class="token tag">&lt;body&gt;</span>
+  <span class="token tag">&lt;h1&gt;</span><span class="token keyword">Hello, Developer.</span><span class="token tag">&lt;/h1&gt;</span>
+  <span class="token tag">&lt;p&gt;</span>Code instantly.<span class="token tag">&lt;/p&gt;</span>
+<span class="token tag">&lt;/body&gt;</span>
+<span class="token tag">&lt;/html&gt;</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section id="features" class="features container">
+        <h2 class="section-title">主な機能</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
+            <h3 class="feature-title">リアルタイムプレビュー</h3>
+            <p class="feature-desc">
+              左側のエディタにHTMLを入力すると、右側に瞬時に結果が反映されます。リロードの手間は必要ありません。
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </div>
+            <h3 class="feature-title">多様なエクスポート</h3>
+            <p class="feature-desc">
+              作成したモックアップは、即座にHTMLファイルとしてダウンロード。プレビューのPDF印刷出力にも対応しています。
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="feature-title">柔軟なUIレイアウト</h3>
+            <p class="feature-desc">
+              ドラッグによる画面分割の調整機能や、プレビュー画面だけの全画面表示モードを備えています。
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2023 Simple HTML Previewer. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>
