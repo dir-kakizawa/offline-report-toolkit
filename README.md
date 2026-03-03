@@ -13,7 +13,7 @@
 
 ## 🚀 デモ (Demo)
 
-**[https://github.com/dir-kakizawa/offline-report-toolkit/]**
+**[https://dir-kakizawa.github.io/offline-report-toolkit/]**
 
 ## 📁 ファイル構成 (File Structure)
 
