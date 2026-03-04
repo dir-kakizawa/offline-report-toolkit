@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【議事メモ】次期コアバリュー再定義に向けたプレ・キックオフ検討会合</title>
+<style>
+  :root {
+    /* Colors */
+    --color-text: #1a1a1c;
+    --color-text-muted: #4b4b4d;
+    --color-bg: #f3f4f6;
+    --color-surface: #ffffff;
+    --color-primary: #005bca;
+    --color-primary-light: #e6f0fa;
+    --color-border: #d1d5db;
+    --color-warning-border: #d97706;
+    --color-warning-bg: #fef3c7;
+    
+    /* Spacing (8px grid) */
+    --spacing-xs: 8px;
+    --spacing-s: 16px;
+    --spacing-m: 24px;
+    --spacing-l: 32px;
+    --spacing-xl: 48px;
+  }
+
+  body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    margin: 0;
+    padding: var(--spacing-m);
+    font-size: 16px;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--color-surface);
+    padding: var(--spacing-xl) var(--spacing-l);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Typography */
+  h1, h2, h3, h4 {
+    margin-top: 0;
+    color: var(--color-text);
+  }
+
+  h1 {
+    font-size: 24px;
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--spacing-xs);
+    margin-bottom: var(--spacing-m);
+  }
+
+  h2 {
+    font-size: 20px;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--spacing-xs);
+    margin-top: var(--spacing-l);
+    margin-bottom: var(--spacing-m);
+  }
+
+  h3 {
+    font-size: 18px;
+    margin-bottom: var(--spacing-s);
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: var(--spacing-s);
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-m);
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-xs) var(--spacing-s);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: var(--color-bg);
+    width: 25%;
+    font-weight: bold;
+  }
+
+  /* Layout blocks */
+  section, .report-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-block {
+    margin-bottom: var(--spacing-m);
+    padding: var(--spacing-m);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+  }
+
+  /* Discussion specific styles */
+  .speech {
+    display: flex;
+    gap: var(--spacing-s);
+    margin-bottom: var(--spacing-s);
+  }
+
+  .speaker {
+    flex-shrink: 0;
+    width: 120px;
+    font-weight: bold;
+    color: var(--color-text-muted);
+  }
+
+  .speech-content {
+    flex-grow: 1;
+  }
+
+  .conclusion {
+    background-color: var(--color-primary-light);
+    padding: var(--spacing-s);
+    border-left: 4px solid var(--color-primary);
+    margin-top: var(--spacing-m);
+    border-radius: 0 4px 4px 0;
+    font-weight: bold;
+  }
+
+  .summary-list {
+    margin: 0;
+    padding-left: var(--spacing-m);
+  }
+
+  .summary-list li {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  /* Commentary / Note section */
+  .commentary-block {
+    background-color: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-border);
+    padding: var(--spacing-m);
+    border-radius: 8px;
+    margin-top: var(--spacing-xl);
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .commentary-block h2 {
+    color: var(--color-warning-border);
+    border-bottom: 1px solid var(--color-warning-border);
+    margin-top: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container {
+      padding: var(--spacing-m) var(--spacing-s);
+    }
+    .speech {
+      flex-direction: column;
+      gap: 4px;
+    }
+    .speaker {
+      width: auto;
+      color: var(--color-primary);
+    }
+    th, td {
+      display: block;
+      width: 100%;
+    }
+    th {
+      border-bottom: none;
+    }
+    td {
+      border-top: none;
+      margin-bottom: var(--spacing-s);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>【議事メモ】次期コアバリュー再定義に向けたプレ・キックオフ検討会合</h1>
+    <table>
+      <tbody>
+        <tr>
+          <th>日時</th>
+          <td>202X年10月15日（火） 13:00〜15:00<br>（※白熱したため30分延長）</td>
+        </tr>
+        <tr>
+          <th>場所</th>
+          <td>第1会議室 ＋ Teams（ハイブリッド）</td>
+        </tr>
+        <tr>
+          <th>出席者</th>
+          <td>高橋部長、鈴木課長、佐藤（営）、田中（企）、伊藤（開発）、渡辺（ファシリテーター/作成）</td>
+        </tr>
+        <tr>
+          <th>会議の目的</th>
+          <td>来期に向けた新規プロジェクトの方向性に関する全体的な「目線合わせ」と「ブレスト」</td>
+        </tr>
+      </tbody>
+    </table>
+  </header>
+
+  <main>
+    <section>
+      <h2>議題および議論内容</h2>
+
+      <div class="report-block">
+        <h3>1. 現状の課題感の共有とパラダイムシフトについて</h3>
+        <div class="speech">
+          <div class="speaker">高橋部長</div>
+          <div class="speech-content">「これからは既存の枠組みにとらわれない、アジャイルかつシナジーを生むドラスティックな展開が必要である」</div>
+        </div>
+        <div class="speech">
+          <div class="speaker">田中（企）</div>
+          <div class="speech-content">「具体的にターゲット層はどこに置くか？」</div>
+        </div>
+        <div class="speech">
+          <div class="speaker">鈴木課長</div>
+          <div class="speech-content">「ターゲットを絞りすぎるとパイが狭まるため、まずは全方位的にリーチしつつ、コアな層には深く刺さるような、ある種のグラデーションを持たせたアプローチが良いのではないか」</div>
+        </div>
+        <div class="conclusion">
+          【結論】まずは固定観念を捨て、フラットな目線で前向きに検討していくという認識で一致した。
+        </div>
+      </div>
+
+      <div class="report-block">
+        <h3>2. リソース配分および予算感のすり合わせ</h3>
+        <div class="speech">
+          <div class="speaker">伊藤（開発）</div>
+          <div class="speech-content">「現状のリソースでは新規開発に割けるマンパワーが不足している。予算の追加はあるのか？」</div>
+        </div>
+        <div class="speech">
+          <div class="speaker">高橋部長</div>
+          <div class="speech-content">「そこは各部署間の連携（横の糸）を強化し、ゼロベースでスキームを再構築することで、リソースの最適化を図りたい。数字（予算）ありきではなく、まずは『熱量』を大事にしたい」</div>
+        </div>
+        <div class="speech">
+          <div class="speaker">佐藤（営）</div>
+          <div class="speech-content">「営業サイドとしても、お客様に『刺さる』ストーリーがあれば全力でコミットする所存」</div>
+        </div>
+        <div class="conclusion">
+          【結論】予算やリソース等のハード面については一旦脇に置き、ソフト面（マインドセット）の醸成を優先的に進める方向性を確認した。
+        </div>
+      </div>
+
+      <div class="report-block">
+        <h3>3. スケジュール感について</h3>
+        <div class="speech">
+          <div class="speaker">鈴木課長</div>
+          <div class="speech-content">「今月末までに何らかのロードマップを引く必要があるのではないか？」</div>
+        </div>
+        <div class="speech">
+          <div class="speaker">田中（企）</div>
+          <div class="speech-content">「しかし、現時点でコンセプトが固まっていないため、ロードマップの引きようがない」</div>
+        </div>
+        <div class="speech">
+          <div class="speaker">高橋部長</div>
+          <div class="speech-content">「走りながら考えるのが今の時代のスピード感。スケジュールありきで動くのではなく、状況に応じてフレキシブルにマイルストーンを再定義していくスタンスを取りたい」</div>
+        </div>
+        <div class="conclusion">
+          【結論】スケジュールについては、引き続き『高い緊張感を持って注視していく』こととなった。
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>本日の決定事項（サマリー）</h2>
+      <ol class="summary-list">
+        <li>メンバー全員で「現状のままではいけない」という<strong>強い課題感を共有</strong>した。</li>
+        <li>次回以降も、風通しの良いオープンな議論を継続していくという<strong>方針を決定</strong>した。</li>
+        <li>何事も「前向きに検討する」という<strong>スタンスで合意</strong>した。</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>ToDo（次回アクション）</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>担当</th>
+            <th>タスク内容</th>
+            <th>期限</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>全員</strong></td>
+            <td>本日の議論を踏まえ、各自のなかで「自分なりの答え」を一旦持ち帰り、それぞれのレイヤーで腹落ちさせておくこと。</td>
+            <td>次回会議まで</td>
+          </tr>
+          <tr>
+            <td><strong>渡辺（作成）</strong></td>
+            <td>次回の「第2回 プレ・キックオフに向けた事前すり合わせ会議」の日程調整を行う。</td>
+            <td>今週中</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="commentary-block">
+      <h2>議事録作成者による総括・所感（※取扱注意）</h2>
+      <p>「目線合わせ」「ゼロベース」「アジャイル」「持ち帰る」などのビジネス用語を多用することで、<strong>「2時間半も話し合ったのに、全員で『頑張ろう』というポーズをとっただけ」「具体的なターゲット、予算、スケジュールがすべて先送りされた」</strong>という事実がオブラートに包まれた仕上がりになっています。</p>
+      <p>次回の会議も、間違いなく何も決まらないと推測されます。</p>
+    </section>
+  </main>
+</div>
+
+</body>
+</html>

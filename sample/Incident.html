@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>顧客DBサーバー 一時ダウンのインシデント一次報告</title>
+  <style>
+    :root {
+      /* カラーパレット（デジタル庁ガイドライン準拠の高コントラスト） */
+      --color-text: #1a1a1c;
+      --color-text-sub: #4b4b4b;
+      --color-bg: #f3f4f6;
+      --color-white: #ffffff;
+      --color-primary: #005bca;
+      --color-border: #d1d5db;
+      --color-success-bg: #ecfdf5;
+      --color-success-text: #065f46;
+      --color-success-border: #10b981;
+
+      /* 余白（8の倍数ルール） */
+      --spacing-xs: 8px;
+      --spacing-s: 16px;
+      --spacing-m: 24px;
+      --spacing-l: 32px;
+      --spacing-xl: 48px;
+
+      /* タイポグラフィ */
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --line-height: 1.6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: var(--spacing-l) var(--spacing-s);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-family);
+      line-height: var(--line-height);
+    }
+
+    .report-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: var(--color-white);
+      padding: var(--spacing-xl);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    /* PDF改ページ制御 */
+    section, .report-block, table {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    header {
+      border-bottom: 2px solid var(--color-primary);
+      margin-bottom: var(--spacing-l);
+      padding-bottom: var(--spacing-m);
+    }
+
+    h1 {
+      font-size: 24px;
+      color: var(--color-text);
+      margin: 0 0 var(--spacing-s) 0;
+      line-height: 1.4;
+    }
+
+    .meta-info {
+      color: var(--color-text-sub);
+      font-size: 14px;
+      margin: 0;
+      text-align: right;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: var(--color-primary);
+      border-left: 6px solid var(--color-primary);
+      padding-left: var(--spacing-s);
+      margin: 0 0 var(--spacing-m) 0;
+      line-height: 1.4;
+    }
+
+    p {
+      margin: 0 0 var(--spacing-m) 0;
+    }
+
+    .report-section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    /* 結論・ステータス表示 */
+    .status-panel {
+      background-color: var(--color-success-bg);
+      color: var(--color-success-text);
+      border: 1px solid var(--color-success-border);
+      padding: var(--spacing-m);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-m);
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    /* 表組みスタイル */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--spacing-m);
+    }
+
+    .info-table th,
+    .info-table td {
+      border: 1px solid var(--color-border);
+      padding: var(--spacing-s);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .info-table th {
+      background-color: #f9fafb;
+      width: 30%;
+      font-weight: bold;
+      color: var(--color-text);
+    }
+
+    /* タイムラインスタイル */
+    .timeline {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--spacing-m) 0;
+    }
+
+    .timeline li {
+      position: relative;
+      padding-left: var(--spacing-l);
+      margin-bottom: var(--spacing-m);
+    }
+
+    .timeline li::before {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      background-color: var(--color-primary);
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .timeline li::after {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 18px;
+      width: 2px;
+      height: calc(100% + var(--spacing-m) - 18px);
+      background-color: var(--color-border);
+    }
+
+    .timeline li:last-child::after {
+      display: none;
+    }
+
+    .timeline-time {
+      font-weight: bold;
+      display: inline-block;
+      min-width: 80px;
+      color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <header>
+      <h1>顧客DBサーバー 一時ダウンのインシデント一次報告</h1>
+      <p class="meta-info">報告日時：2026年3月3日 22:33</p>
+    </header>
+
+    <main>
+      <section class="report-section">
+        <h2>1. 現在の状況（結論）</h2>
+        <div class="status-panel">
+          状態：正常稼働中（復旧済み）
+        </div>
+        <p>本日14:00頃より発生しておりました、顧客がシステムにログインできない障害につきまして、14:45に復旧対応が完了いたしました。現在はシステムを正常にご利用いただける状態です。</p>
+      </section>
+
+      <section class="report-section">
+        <h2>2. 事象の概要と原因の見解</h2>
+        <table class="info-table">
+          <tbody>
+            <tr>
+              <th>発生事象</th>
+              <td>顧客から「システムにログインできない」というお問い合わせが複数件発生。</td>
+            </tr>
+            <tr>
+              <th>直接の原因</th>
+              <td>顧客データを管理するサーバー（DBサーバー：192.168.1.10）の処理負荷が限界（CPU使用率100%）に達し、応答不能な状態に陥ったため。</td>
+            </tr>
+            <tr>
+              <th>根本原因（推定）</th>
+              <td>昨日システムに新たに追加（リリース）された、データを自動集計するプログラム（集計バッチ）が、サーバーに対して想定以上の過大な負荷をかけていた可能性が高いとみています。</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="report-section">
+        <h2>3. 発生から復旧までのタイムライン</h2>
+        <ul class="timeline">
+          <li>
+            <span class="timeline-time">14:00頃</span>
+            顧客より「ログインできない」との問い合わせを複数受領し、障害を認知。
+          </li>
+          <li>
+            <span class="timeline-time">14:15</span>
+            担当チームにて原因調査を開始。データ管理サーバーの負荷が100%に張り付いている状態を確認。
+          </li>
+          <li>
+            <span class="timeline-time">14:45</span>
+            負荷の原因と推測される自動集計プログラム（バッチ）を緊急停止。直後にサーバー負荷が低下し、システムが正常に復旧したことを確認。
+          </li>
+        </ul>
+      </section>
+
+      <section class="report-section">
+        <h2>4. 今後の対応方針</h2>
+        <p>
+          本日の暫定対応（原因プログラムの緊急停止）により、目前のシステム安定稼働は確保されております。<br>
+          再発を防止するための抜本的なプログラム改修および運用見直し（恒久対応）につきましては、<strong>明日の朝会にて関係者間で協議のうえ、方針を決定・ご報告いたします。</strong>
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

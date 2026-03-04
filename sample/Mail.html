@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-width=1.0">
+<title>次世代DX勤怠システム「プロジェクト・フェニックス」事後検証・UI/UX評価報告書</title>
+<style>
+  :root {
+    /* カラーパレット（デジタル庁ガイドライン準拠・WCAG AAクリア） */
+    --color-text: #1a1a1c;
+    --color-text-sub: #4b4b4b;
+    --color-bg: #f3f4f6;
+    --color-surface: #ffffff;
+    --color-primary: #005bca;
+    --color-danger: #d40026;
+    --color-border: #cccccc;
+    --color-bg-thead: #e5e7eb;
+
+    /* 余白（8の倍数ルール） */
+    --spacing-xs: 8px;
+    --spacing-s: 16px;
+    --spacing-m: 24px;
+    --spacing-l: 32px;
+    --spacing-xl: 48px;
+
+    /* フォント・タイポグラフィ */
+    --font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    --line-height-base: 1.6;
+  }
+
+  /* リセット＆ベーススタイル */
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-family);
+    line-height: var(--line-height-base);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* コンテナレイアウト（A4印刷を意識した幅設定） */
+  .container {
+    max-width: 880px;
+    margin: var(--spacing-xl) auto;
+    padding: var(--spacing-xl);
+    background-color: var(--color-surface);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+  }
+
+  /* タイポグラフィ */
+  h1 {
+    font-size: 28px;
+    color: var(--color-primary);
+    margin-top: 0;
+    margin-bottom: var(--spacing-m);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 2px solid var(--color-primary);
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-top: var(--spacing-l);
+    margin-bottom: var(--spacing-s);
+    padding-left: var(--spacing-xs);
+    border-left: 6px solid var(--color-primary);
+  }
+
+  h3 {
+    font-size: 18px;
+    margin-top: var(--spacing-m);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: var(--spacing-s);
+  }
+
+  .text-danger {
+    color: var(--color-danger);
+    font-weight: bold;
+  }
+
+  .text-muted {
+    color: var(--color-text-sub);
+    font-size: 14px;
+  }
+
+  /* PDF出力（改ページ）制御 */
+  section, .report-block, table, tr, li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* テーブルスタイル */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-m);
+  }
+
+  th, td {
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-s);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: var(--color-bg-thead);
+    font-weight: bold;
+    width: 25%;
+  }
+
+  /* リストスタイル */
+  ul {
+    margin-top: 0;
+    margin-bottom: var(--spacing-m);
+    padding-left: var(--spacing-l);
+  }
+
+  li {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  /* 情報ブロック */
+  .summary-box {
+    background-color: var(--color-bg);
+    border-left: 4px solid var(--color-danger);
+    padding: var(--spacing-s) var(--spacing-m);
+    margin-bottom: var(--spacing-l);
+  }
+
+  .summary-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .header-meta {
+    text-align: right;
+    margin-bottom: var(--spacing-l);
+  }
+
+  /* 印刷用調整 */
+  @media print {
+    body {
+      background-color: transparent;
+    }
+    .container {
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      max-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-meta">
+      <p class="text-muted">作成日：202X年10月12日<br>作成者：UI/UXリサーチチーム・システム監査部門</p>
+    </div>
+    <h1>システム開発事後検証・UI/UX評価報告書</h1>
+    <p><strong>対象プロジェクト：</strong> 社内勤怠管理システム リプレイス（旧称：プロジェクト・フェニックス / 最終名称：ふわふわマシュマロ・タイム）</p>
+  </header>
+
+  <main>
+    <section class="report-block">
+      <h2>1. エグゼクティブ・サマリー（プロジェクトの結末と概要）</h2>
+      <div class="summary-box">
+        <p>本プロジェクトは、「紙のタイムカード廃止」という本来の目的を見失い、無計画な機能追加（スコープクリープ）を繰り返した結果、<strong>開発は白紙撤回（全キャンセル）</strong>となりました。</p>
+        <p>最終的に、1998年製Excelマクロ（フロッピーディスク）をそのまま運用することとなり、システムとしては無価値に終わりました。また、開発期間わずか10日間の間に、<span class="text-danger">推定4億8,700万円超の損害（機材の無断発注・クラウドサーバーの異常課金等）</span>が発生した極めて深刻な事案です。</p>
+      </div>
+    </section>
+
+    <section class="report-block">
+      <h2>2. 主要な失敗要因とガバナンスの欠如</h2>
+      <p>システム開発における基本原則がすべて無視され、プロジェクトが崩壊に至った主要な要因を整理します。</p>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>課題分類</th>
+            <th>発生した事象（事実確認）</th>
+            <th>システム・UXへの影響</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>要件定義の欠如</td>
+            <td>
+              <ul>
+                <li>要件定義を行わないまま、納期を「3週間後」と設定。</li>
+                <li>目的が「DXしてシナジーを生む」といった抽象的な言葉に終始。</li>
+              </ul>
+            </td>
+            <td>開発範囲（スコープ）の境界線が消失。本来必要な「出退勤の記録」という基本機能の設計が完全に後回しになった。</td>
+          </tr>
+          <tr>
+            <td>過剰な機能追加<br>（バズワードへの執着）</td>
+            <td>
+              <ul>
+                <li>ブロックチェーンでの暗号資産マイニング機能。</li>
+                <li>出社時のVR（メタバース）対応。</li>
+                <li>出勤打刻時の肉じゃがフードデリバリー機能。</li>
+                <li>打刻前の15秒間の動画広告再生。</li>
+              </ul>
+            </td>
+            <td>勤怠打刻（トランザクション）の確定に10分を要するなど、勤怠管理システムとしての実用性が完全に破綻した。</td>
+          </tr>
+          <tr>
+            <td>コスト管理の崩壊</td>
+            <td>
+              <ul>
+                <li>外部ベンダーによるVRゴーグル500台（3,700万円）の無断発注。</li>
+                <li>不適切なプログラム実装により、クラウド（AWS）利用料金が秒間3万円増加し、総額4億5,000万円を突破。</li>
+              </ul>
+            </td>
+            <td>PM（プロジェクトマネージャー）の承認を経ない発注や、システム異常検知・停止のフェイルセーフ機能が存在しなかった。</td>
+          </tr>
+          <tr>
+            <td>セキュリティ意識の欠如</td>
+            <td>
+              <ul>
+                <li>外部ベンダーから拡張子偽装の可能性が高いファイル（.exe）が全社共有された。</li>
+              </ul>
+            </td>
+            <td>マルウェア感染などの深刻な情報漏洩リスクに直結するインシデント。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="report-block">
+      <h2>3. UI/UX（ユーザー体験）の致命的な欠陥</h2>
+      <p>デザインガイドラインおよびウェブアクセシビリティの観点から、計画されていたシステムのインターフェースは著しくユーザーの利便性を損なうものでした。</p>
+
+      <ul>
+        <li><strong>「透明なUI」の採用：</strong><br>
+          「ガラスのように透けて向こう側が見える」「心の目でタップする」というデザインは、視認性および操作性を完全に無視しており、アクセシビリティ基準（WCAG）のコントラスト比要件に明確に違反しています。</li>
+        <li><strong>不適切なフィードバック：</strong><br>
+          打刻時に「社長室に銅鑼（どら）の音が鳴り響く」仕様は、ユーザーに対する適切なシステムフィードバック（打刻完了の通知等）ではなく、単なるノイズであり、職場環境を悪化させる要因となります。</li>
+        <li><strong>AIの暴走によるユーザーへの心理的負荷：</strong><br>
+          AIの語尾を「〜でやんす」に変更した結果、AIが「働いたら負けでやんす」と全社員に退職勧奨メールを誤送信し続けるバグが発生しました。システムがユーザーに不安と混乱を与える最悪のユーザー体験（UX）です。</li>
+      </ul>
+    </section>
+
+    <section class="report-block">
+      <h2>4. 今後のシステム開発・DX推進に向けた提言</h2>
+      <p>今回の事態を重く受け止め、今後のIT投資においては以下の原則を徹底する必要があります。</p>
+
+      <table>
+        <tbody>
+          <tr>
+            <th>1. 課題解決ファースト</th>
+            <td>「AI」「ブロックチェーン」「メタバース」などの最新技術（バズワード）は「手段」であり、「目的」ではありません。まずは「ユーザー（従業員）が抱える業務課題は何か」を明確にし、最もシンプルに解決できる手法を選択してください。</td>
+          </tr>
+          <tr>
+            <th>2. 要件定義と段階的リリースの徹底</th>
+            <td>システム開発を行う際は、必ずステークホルダー間で「要件定義書」を取り交わし、開発範囲をロックしてください。また、アジャイル開発を「計画なしに進める口実」とせず、最小限の機能（MVP）からテスト運用を始めるべきです。</td>
+          </tr>
+          <tr>
+            <th>3. アクセシビリティ・UI/UXの尊重</th>
+            <td>業務システムにおいて最も重要なのは「誰でも迷わず、短時間で正確に操作できること」です。奇抜なデザイン（透明なUIなど）は排し、公的なデザインシステム（デジタル庁ガイドライン等）に準拠した標準的なインターフェースを採用してください。</td>
+          </tr>
+          <tr>
+            <th>4. ガバナンスと承認フローの構築</th>
+            <td>クラウドインフラの利用金額に対する上限アラートの設定、外部ベンダーへの発注権限の明確化、不審なファイルの検知システムなど、基本的なITガバナンスを早急に再構築してください。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
